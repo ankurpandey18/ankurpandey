@@ -289,7 +289,17 @@ export function Badge({
   variant = 'default',
 }: {
   children: React.ReactNode;
-  variant?: 'active' | 'inactive' | 'owner' | 'pharmacist' | 'billing' | 'default';
+  variant?:
+    | 'active'
+    | 'inactive'
+    | 'owner'
+    | 'pharmacist'
+    | 'billing'
+    | 'default'
+    | 'success'
+    | 'warning'
+    | 'danger'
+    | 'neutral';
 }) {
   const styles: Record<string, string> = {
     active: 'badge-active',
@@ -297,6 +307,10 @@ export function Badge({
     owner: 'badge-owner',
     pharmacist: 'badge-pharmacist',
     billing: 'badge-billing',
+    success: 'bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-xs font-medium',
+    warning: 'bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded text-xs font-medium',
+    danger: 'bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded text-xs font-medium',
+    neutral: 'bg-slate-50 text-slate-700 border border-slate-200 px-2 py-0.5 rounded text-xs font-medium',
     default: 'badge-inactive',
   };
   return <span className={styles[variant] ?? styles['default']}>{children}</span>;

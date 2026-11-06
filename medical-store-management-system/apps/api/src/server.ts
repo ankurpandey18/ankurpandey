@@ -11,11 +11,19 @@ import { prisma, connectDatabase, disconnectDatabase } from './config/database.j
 import { requestContextMiddleware } from './middleware/requestContext.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
-// Routers
+// Routers (Phase 1)
 import authRouter from './modules/auth/auth.router.js';
 import employeesRouter from './modules/employees/employees.router.js';
 import dashboardRouter from './modules/dashboard/dashboard.router.js';
 import auditRouter from './modules/audit/audit.router.js';
+
+// Routers (Phase 2)
+import masterDataRouter from './modules/masterData/masterData.router.js';
+import medicinesRouter from './modules/medicines/medicines.router.js';
+import batchesRouter from './modules/batches/batches.router.js';
+import inventoryRouter from './modules/inventory/inventory.router.js';
+import reportsRouter from './modules/reports/reports.router.js';
+import importsRouter from './modules/imports/imports.router.js';
 
 const PgSession = connectPgSimple(session);
 
@@ -124,6 +132,14 @@ export function createApp() {
   app.use('/api/v1/employees', employeesRouter);
   app.use('/api/v1/dashboard', dashboardRouter);
   app.use('/api/v1/audit', auditRouter);
+
+  // Phase 2 routes
+  app.use('/api/v1', masterDataRouter);
+  app.use('/api/v1/medicines', medicinesRouter);
+  app.use('/api/v1/batches', batchesRouter);
+  app.use('/api/v1/inventory', inventoryRouter);
+  app.use('/api/v1/reports', reportsRouter);
+  app.use('/api/v1/imports', importsRouter);
 
   // ─── 404 handler ──────────────────────────────────────────────────────────
   app.use((_req, res) => {

@@ -13,6 +13,7 @@ export default defineConfig({
       exclude: ['src/scripts/**', 'src/server.ts'],
     },
     testTimeout: 15000,
+    fileParallelism: false,
   },
   resolve: {
     alias: {
