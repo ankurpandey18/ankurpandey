@@ -1,4 +1,5 @@
 import { prisma } from '../../config/database.js';
+import { startOfDayKolkata } from '../../utils/date.js';
 import type {
   ExpiryReportItemDto,
   LowStockReportItemDto,
@@ -7,8 +8,7 @@ import type {
 
 export class ReportsService {
   async getExpiryReport(filter?: 'expired' | '30days' | '60days' | '90days' | 'all'): Promise<ExpiryReportItemDto[]> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = startOfDayKolkata();
 
     const balances = await prisma.stockBalance.findMany({
       where: {

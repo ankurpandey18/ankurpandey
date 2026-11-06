@@ -1,5 +1,6 @@
 import { prisma } from '../../config/database.js';
 import { NotFoundError } from '../../utils/errors.js';
+import { startOfDayKolkata, getTodayKolkataString } from '../../utils/date.js';
 import type { FefoPreviewResultDto, FefoAllocationItemDto } from '@medstore/shared';
 
 export class FefoService {
@@ -14,8 +15,7 @@ export class FefoService {
     });
     if (!medicine) throw new NotFoundError('Medicine not found');
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = startOfDayKolkata();
 
     // Fetch active batches with expiryDate >= today and positive stock balance
     const stockBalances = await prisma.stockBalance.findMany({
@@ -115,7 +115,7 @@ export class FefoService {
       remainingBatchStock: number;
     }[];
   } {
-    const todayStr = currentDateStr || new Date().toISOString().split('T')[0]!;
+    const todayStr = currentDateStr || getTodayKolkataString();
 
     // Filter out expired batches and zero-stock batches
     const eligible = candidateBatches.filter(

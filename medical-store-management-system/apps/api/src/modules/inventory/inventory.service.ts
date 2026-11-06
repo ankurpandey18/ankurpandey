@@ -433,13 +433,44 @@ export class InventoryService {
       });
 
       for (const item of input.items) {
+        const medicine = await tx.medicine.findUnique({
+          where: { id: item.medicineId },
+        });
+        if (!medicine) {
+          throw new NotFoundError(`Medicine "${item.medicineId}" not found`);
+        }
+        if (!medicine.isActive) {
+          throw new ValidationError(
+            `Cannot create opening stock for deactivated medicine "${medicine.brandName}"`,
+          );
+        }
+
         let batchId = item.batchId;
+
+        // If batch provided, verify it belongs to this medicine
+        if (batchId) {
+          const batch = await tx.medicineBatch.findUnique({
+            where: { id: batchId },
+          });
+          if (!batch) throw new NotFoundError(`Batch "${batchId}" not found`);
+          if (batch.medicineId !== item.medicineId) {
+            throw new ValidationError(
+              `Batch "${batch.batchNumber}" does not belong to medicine "${medicine.brandName}"`,
+            );
+          }
+        }
 
         // If batch not provided, create it inline
         if (!batchId) {
           if (!item.batchNumber || !item.expiryDate || !item.manufacturingDate) {
             throw new ValidationError(
               'Batch number, manufacturing date, and expiry date are required when creating a new batch',
+            );
+          }
+
+          if (new Date(item.manufacturingDate) > new Date(item.expiryDate)) {
+            throw new ValidationError(
+              'Manufacturing date cannot be after expiry date for inline batch creation',
             );
           }
 
@@ -835,6 +866,10 @@ export class InventoryService {
       where: { id: input.batchId },
     });
     if (!batch) throw new NotFoundError('Batch not found');
+
+    if (input.sourceLocationId === input.destinationLocationId) {
+      throw new ValidationError('Source and destination locations must be different');
+    }
 
     const [srcLoc, destLoc] = await Promise.all([
       prisma.stockLocation.findUnique({ where: { id: input.sourceLocationId } }),
@@ -1374,9 +1409,10 @@ export class InventoryService {
   }
 
   // ─── Reconciliation Service ─────────────────────────────────────────────────
-  async reconcileStock() {
+  async reconcileStock(medicineId?: string) {
     // Computes sum of stock_movements vs stock_balances.quantityOnHand
     const balances = await prisma.stockBalance.findMany({
+      where: medicineId ? { medicineId } : {},
       include: {
         medicine: { select: { brandName: true, sku: true } },
         batch: { select: { batchNumber: true } },

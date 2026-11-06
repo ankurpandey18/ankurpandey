@@ -33,12 +33,17 @@ router.post('/opening-stock/:id/approve', requirePermission(PermissionKey.OPENIN
 router.post('/opening-stock/:id/post', requirePermission(PermissionKey.OPENING_STOCK_APPROVE), ctrl.postOpeningStock);
 
 // ─── Adjustments ──────────────────────────────────────────────────────────────
+router.get('/adjustments', requirePermission(PermissionKey.INVENTORY_READ), ctrl.listAdjustments);
 router.post('/adjustments', requirePermission(PermissionKey.ADJUSTMENTS_CREATE), ctrl.createAdjustment);
 router.post('/adjustments/:id/decide', requirePermission(PermissionKey.ADJUSTMENTS_APPROVE), ctrl.decideAdjustment);
+router.post('/adjustments/:id/approve', requirePermission(PermissionKey.ADJUSTMENTS_APPROVE), ctrl.approveAdjustment);
+router.post('/adjustments/:id/reject', requirePermission(PermissionKey.ADJUSTMENTS_APPROVE), ctrl.rejectAdjustment);
 router.post('/adjustments/:id/post', requirePermission(PermissionKey.ADJUSTMENTS_APPROVE), ctrl.postAdjustment);
 
 // ─── Transfers ────────────────────────────────────────────────────────────────
+router.get('/transfers', requirePermission(PermissionKey.INVENTORY_READ), ctrl.listTransfers);
 router.post('/transfers', requirePermission(PermissionKey.TRANSFERS_CREATE), ctrl.createTransfer);
+router.post('/transfers/:id/post', requirePermission(PermissionKey.TRANSFERS_CREATE), ctrl.getOperation);
 
 // ─── Stock Counts ─────────────────────────────────────────────────────────────
 router.get('/counts', requirePermission(PermissionKey.INVENTORY_READ), ctrl.listStockCountSessions);

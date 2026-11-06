@@ -731,15 +731,20 @@ export const CreateAdjustmentSchema = z.object({
 });
 export type CreateAdjustmentInput = z.infer<typeof CreateAdjustmentSchema>;
 
-export const CreateTransferSchema = z.object({
-  batchId: z.string().uuid(),
-  sourceLocationId: z.string().uuid(),
-  destinationLocationId: z.string().uuid(),
-  quantity: z.coerce.number().positive('Transfer quantity must be positive'),
-  reason: z.string().max(255).optional(),
-  notes: z.string().max(500).optional(),
-  idempotencyKey: z.string().optional(),
-});
+export const CreateTransferSchema = z
+  .object({
+    batchId: z.string().uuid(),
+    sourceLocationId: z.string().uuid(),
+    destinationLocationId: z.string().uuid(),
+    quantity: z.coerce.number().positive('Transfer quantity must be positive'),
+    reason: z.string().max(255).optional(),
+    notes: z.string().max(500).optional(),
+    idempotencyKey: z.string().optional(),
+  })
+  .refine((data) => data.sourceLocationId !== data.destinationLocationId, {
+    message: 'Source and destination locations must be different',
+    path: ['destinationLocationId'],
+  });
 export type CreateTransferInput = z.infer<typeof CreateTransferSchema>;
 
 export const OperationDecisionSchema = z.object({
@@ -859,10 +864,16 @@ export interface StockCountSessionDto {
 }
 
 // ─── FEFO Engine ──────────────────────────────────────────────────────────────
-export const FefoPreviewQuerySchema = z.object({
-  medicineId: z.string().uuid(),
-  requestedQuantity: z.coerce.number().positive(),
-});
+export const FefoPreviewQuerySchema = z
+  .object({
+    medicineId: z.string().uuid(),
+    requestedQuantity: z.coerce.number().positive().optional(),
+    quantity: z.coerce.number().positive().optional(),
+  })
+  .transform((data) => ({
+    medicineId: data.medicineId,
+    requestedQuantity: data.requestedQuantity ?? data.quantity ?? 1,
+  }));
 export type FefoPreviewQuery = z.infer<typeof FefoPreviewQuerySchema>;
 
 export interface FefoAllocationItemDto {

@@ -125,6 +125,23 @@ export async function postOpeningStock(req: Request, res: Response, next: NextFu
 }
 
 // ─── Adjustments ──────────────────────────────────────────────────────────────
+export async function listAdjustments(req: Request, res: Response, next: NextFunction) {
+  try {
+    const page = Number(req.query['page']) || 1;
+    const limit = Number(req.query['limit']) || 20;
+    const status = req.query['status'] as any;
+    const result = await inventoryService.listOperations({
+      page,
+      limit,
+      type: 'ADJUSTMENT' as any,
+      status,
+    });
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function createAdjustment(req: Request, res: Response, next: NextFunction) {
   try {
     const input = CreateAdjustmentSchema.parse(req.body);
@@ -149,6 +166,34 @@ export async function decideAdjustment(req: Request, res: Response, next: NextFu
   }
 }
 
+export async function approveAdjustment(req: Request, res: Response, next: NextFunction) {
+  try {
+    const reason = typeof req.body?.reason === 'string' ? req.body.reason : undefined;
+    const result = await inventoryService.decideAdjustment(
+      req.params['id'] as string,
+      { action: 'APPROVE', reason },
+      req.session?.userId,
+    );
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function rejectAdjustment(req: Request, res: Response, next: NextFunction) {
+  try {
+    const reason = typeof req.body?.reason === 'string' ? req.body.reason : undefined;
+    const result = await inventoryService.decideAdjustment(
+      req.params['id'] as string,
+      { action: 'REJECT', reason },
+      req.session?.userId,
+    );
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function postAdjustment(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await inventoryService.postAdjustment(req.params['id'] as string, req.session?.userId);
@@ -159,6 +204,21 @@ export async function postAdjustment(req: Request, res: Response, next: NextFunc
 }
 
 // ─── Transfers ────────────────────────────────────────────────────────────────
+export async function listTransfers(req: Request, res: Response, next: NextFunction) {
+  try {
+    const page = Number(req.query['page']) || 1;
+    const limit = Number(req.query['limit']) || 20;
+    const result = await inventoryService.listOperations({
+      page,
+      limit,
+      type: 'TRANSFER' as any,
+    });
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function createTransfer(req: Request, res: Response, next: NextFunction) {
   try {
     const input = CreateTransferSchema.parse(req.body);
@@ -269,9 +329,10 @@ export async function getOperation(req: Request, res: Response, next: NextFuncti
 }
 
 // ─── Reconciliation ───────────────────────────────────────────────────────────
-export async function getReconciliationReport(_req: Request, res: Response, next: NextFunction) {
+export async function getReconciliationReport(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await inventoryService.reconcileStock();
+    const medicineId = req.query['medicineId'] as string | undefined;
+    const result = await inventoryService.reconcileStock(medicineId);
     res.json({ success: true, data: result });
   } catch (err) {
     next(err);
