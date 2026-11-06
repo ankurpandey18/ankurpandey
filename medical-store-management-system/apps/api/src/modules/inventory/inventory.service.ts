@@ -398,7 +398,8 @@ export class InventoryService {
   private async generateOperationNumber(prefix: string): Promise<string> {
     const year = new Date().getFullYear();
     const count = await prisma.stockOperation.count();
-    const num = String(count + 1).padStart(5, '0');
+    const entropy = Math.floor(100 + Math.random() * 900);
+    const num = `${String(count + 1).padStart(4, '0')}-${entropy}`;
     return `${prefix}-${year}-${num}`;
   }
 
@@ -932,7 +933,8 @@ export class InventoryService {
     }
 
     const count = await prisma.stockCountSession.count();
-    const sessionNumber = `CNT-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
+    const entropy = Math.floor(100 + Math.random() * 900);
+    const sessionNumber = `CNT-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}-${entropy}`;
 
     // Pre-populate items from current stock balances in that location
     const balances = await prisma.stockBalance.findMany({
