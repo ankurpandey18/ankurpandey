@@ -13,6 +13,12 @@ import {
   ShieldCheck,
   Package,
   Receipt,
+  Pill,
+  Boxes,
+  Clock,
+  AlertTriangle,
+  Sparkles,
+  Upload,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -34,6 +40,42 @@ const navItems: NavItem[] = [
     icon: <LayoutDashboard className="w-4 h-4" />,
   },
   {
+    label: 'Medicines',
+    to: '/medicines',
+    icon: <Package className="w-4 h-4" />,
+  },
+  {
+    label: 'Batches',
+    to: '/batches',
+    icon: <Pill className="w-4 h-4" />,
+  },
+  {
+    label: 'Inventory',
+    to: '/inventory',
+    icon: <Boxes className="w-4 h-4" />,
+  },
+  {
+    label: 'Expiry Monitor',
+    to: '/reports/expiry',
+    icon: <Clock className="w-4 h-4" />,
+  },
+  {
+    label: 'Low Stock',
+    to: '/reports/low-stock',
+    icon: <AlertTriangle className="w-4 h-4" />,
+  },
+  {
+    label: 'FEFO Tool',
+    to: '/reports/fefo',
+    icon: <Sparkles className="w-4 h-4" />,
+  },
+  {
+    label: 'Import / Export',
+    to: '/imports',
+    icon: <Upload className="w-4 h-4" />,
+    roles: ['OWNER', 'PHARMACIST'],
+  },
+  {
     label: 'Employees',
     to: '/employees',
     icon: <Users className="w-4 h-4" />,
@@ -45,20 +87,13 @@ const navItems: NavItem[] = [
     icon: <ClipboardList className="w-4 h-4" />,
     roles: ['OWNER'],
   },
-  // Future modules — clearly marked as coming soon
+  // Future module
   {
-    label: 'Inventory',
-    to: '#',
-    icon: <Package className="w-4 h-4" />,
-    disabled: true,
-    badge: 'Phase 2',
-  },
-  {
-    label: 'Billing',
+    label: 'Billing & POS',
     to: '#',
     icon: <Receipt className="w-4 h-4" />,
     disabled: true,
-    badge: 'Phase 2',
+    badge: 'Phase 4',
   },
 ];
 

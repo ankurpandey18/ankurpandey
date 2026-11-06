@@ -19,6 +19,39 @@ Phase 1 establishes the foundational enterprise infrastructure:
 
 ---
 
+## 💊 Phase 2 Implementation Scope: Medicine Catalogue & Inventory Management
+
+Phase 2 builds seamlessly upon Phase 1 without breaking any existing features:
+- **Centralized Medicine Catalogue**: Complete medicine master with SKU, brand/trade name, generic formulation, Indian regulatory classifications (`SCHEDULE_H`, `SCHEDULE_H1`, `SCHEDULE_X`, `OTC`, `GENERAL`), HSN tax codes, and GST rates.
+- **Classification Masters**: Dedicated master management for Categories, Manufacturers, Dosage Forms (Tablets, Capsules, Syrups, Injections, Ointments, Drops), Administration Routes, and Measurement Units.
+- **Multi-Salt Compositions & Barcodes**: Multi-ingredient potency mapping and packaging barcode conversion (`BASE_UNIT` vs `PACK`).
+- **Batch Management**: Batch-wise tracking with manufacturing date, expiry date (normalized to end of month in `Asia/Kolkata`), MRP, purchase cost, selling price, and real-time days-until-expiry badges.
+- **Multi-Location Inventory**: Single-store hierarchy (Main Store, Racks, Shelves, Cabinets, Refrigerators) with real-time stock balances at `(batchId, locationId)` granularity.
+- **Immutable Stock Ledger**: Append-only transaction ledger (`StockMovement`) recording `OPENING_STOCK`, `ADJUSTMENT_IN/OUT`, `DAMAGE`, `EXPIRED`, `TRANSFER_IN/OUT`, and `STOCK_COUNT_VARIANCE`.
+- **Concurrency & Negative Stock Protection**: Row-level locking (`SELECT ... FOR UPDATE`) in PostgreSQL transactions guaranteeing zero negative inventory.
+- **Controlled Workflows**:
+  - **Opening Stock**: `DRAFT` → `SUBMITTED` → `APPROVED` → `POSTED` lifecycle.
+  - **Stock Adjustments**: Separation of duties (Pharmacist cannot self-approve; Owner reviews and posts).
+  - **Stock Transfers**: Atomic location-to-location double movements in a single transaction.
+  - **Physical Stock Counts**: Audit sessions with snapshot balances, variance calculation, and approved variance posting.
+- **FEFO Recommendation Engine**: Pure First Expiry, First Out batch allocation algorithm with tie-breaking and automatic multi-batch splitting.
+- **Expiry & Low Stock Reports**: Real-time analytical monitors (Expired, 30d, 60d, 90d buckets; low-stock alerts based on configured reorder thresholds).
+- **Validated CSV Import/Export**: Dry-run preview, row-level validation, and formula injection (`=`, `+`, `-`, `@`) sanitization.
+- **Role Integration**: Enforced backend permissions across `OWNER`, `PHARMACIST`, and `BILLING_STAFF` with real-time dashboard widgets.
+
+### Phase 2 Documentation Suite
+- [Architecture & Design](file:///docs/phase-2-architecture.md)
+- [Medicine Master Data Model](file:///docs/medicine-data-model.md)
+- [Stock Ledger & Concurrency](file:///docs/inventory-ledger-design.md)
+- [Stock Workflows & Lifecycles](file:///docs/stock-workflows.md)
+- [FEFO Recommendation Logic](file:///docs/fefo-logic.md)
+- [API Reference](file:///docs/inventory-api-documentation.md)
+- [Security & RBAC Review](file:///docs/phase-2-security-review.md)
+- [Testing & Verification Report](file:///docs/phase-2-testing-report.md)
+- [Phase 2 Completion Report](file:///docs/phase-2-completion-report.md)
+
+---
+
 ## 🏗️ Architecture & Technology Stack
 
 | Layer | Technologies |

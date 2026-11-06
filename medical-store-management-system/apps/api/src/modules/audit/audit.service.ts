@@ -1,4 +1,5 @@
 import { prisma } from '../../config/database.js';
+import { recordAuditEvent } from '../../utils/audit.js';
 import { AuditListQuery, Paginated } from '@medstore/shared';
 import { Prisma } from '@prisma/client';
 
@@ -92,3 +93,7 @@ export async function getAuditLog(id: string): Promise<AuditLogDto | null> {
     createdAt: log.createdAt.toISOString(),
   };
 }
+
+export const auditService = {
+  log: recordAuditEvent,
+};
