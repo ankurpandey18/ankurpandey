@@ -12,14 +12,10 @@ const BILLING_EMAIL = 'rbac.billing@medstore.test';
 const TEST_PASSWORD = 'RbacPassword@123';
 
 describe('Phase 2 Integration Tests — Role-Based Access Control (RBAC)', () => {
-  let ownerAgent: supertest.SuperTest<supertest.Test>;
-  let pharmacistAgent: supertest.SuperTest<supertest.Test>;
-  let billingAgent: supertest.SuperTest<supertest.Test>;
+  let ownerAgent: ReturnType<typeof supertest.agent>;
+  let pharmacistAgent: ReturnType<typeof supertest.agent>;
+  let billingAgent: ReturnType<typeof supertest.agent>;
   const unauthRequest = supertest(app);
-
-  let ownerUserId: string;
-  let pharmacistUserId: string;
-  let billingUserId: string;
 
   let testMedicineId: string;
   let testBatchId: string;
@@ -53,7 +49,7 @@ describe('Phase 2 Integration Tests — Role-Based Access Control (RBAC)', () =>
       throw new Error('Required roles missing from database seed');
     }
 
-    const owner = await prisma.user.create({
+    await prisma.user.create({
       data: {
         name: 'RBAC Owner',
         email: OWNER_EMAIL,
@@ -63,9 +59,8 @@ describe('Phase 2 Integration Tests — Role-Based Access Control (RBAC)', () =>
         employeeProfile: { create: { employeeCode: `O${Math.floor(Math.random() * 899999 + 100000)}` } },
       },
     });
-    ownerUserId = owner.id;
 
-    const pharm = await prisma.user.create({
+    await prisma.user.create({
       data: {
         name: 'RBAC Pharmacist',
         email: PHARMACIST_EMAIL,
@@ -75,9 +70,8 @@ describe('Phase 2 Integration Tests — Role-Based Access Control (RBAC)', () =>
         employeeProfile: { create: { employeeCode: `P${Math.floor(Math.random() * 899999 + 100000)}` } },
       },
     });
-    pharmacistUserId = pharm.id;
 
-    const bill = await prisma.user.create({
+    await prisma.user.create({
       data: {
         name: 'RBAC Billing Staff',
         email: BILLING_EMAIL,
@@ -87,7 +81,6 @@ describe('Phase 2 Integration Tests — Role-Based Access Control (RBAC)', () =>
         employeeProfile: { create: { employeeCode: `B${Math.floor(Math.random() * 899999 + 100000)}` } },
       },
     });
-    billingUserId = bill.id;
 
     // 3. Establish sessions
     ownerAgent = supertest.agent(app);

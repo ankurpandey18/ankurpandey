@@ -86,7 +86,7 @@ All discovered defects were analyzed for root causes, remediated, accompanied by
 A complete end-to-end browser automation flow was executed using a headless Chrome instance:
 1. **Login Page**:
    - Tested invalid login: proper error alert rendered.
-   - Tested valid login with `owner1213@gmail.com` / `Owner@Secure123!`: session cookie stored, redirected to `/dashboard`.
+   - Tested valid login using a temporary test account; credentials intentionally omitted from this report.
 2. **Owner Dashboard**:
    - Rendered real-time statistics cards (Total Employees, Active, Pharmacists, Billing Staff).
    - Rendered Recent Activity audit log table with formatted timestamps and actor tags.

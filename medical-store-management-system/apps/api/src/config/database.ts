@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { logger } from '../config/logger.js';
+import { logger } from './logger.js';
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 

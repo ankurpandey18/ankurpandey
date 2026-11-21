@@ -4,14 +4,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Search,
   Plus,
-  Filter,
   Eye,
   Edit2,
   PowerOff,
   Upload,
   Layers,
-  Building2,
-  FileText,
   AlertCircle,
   Pill,
 } from 'lucide-react';
@@ -20,8 +17,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import {
   Button,
-  Input,
-  Select,
   Badge,
   Spinner,
   EmptyState,
@@ -94,6 +89,32 @@ export function MedicineListPage() {
       }),
   });
 
+  const updateParams = (newFilters: {
+    search?: string;
+    categoryId?: string;
+    manufacturerId?: string;
+    dosageFormId?: string;
+    isActive?: string;
+    page?: number;
+  }) => {
+    const params = new URLSearchParams();
+    const s = newFilters.search !== undefined ? newFilters.search : searchTerm;
+    const c = newFilters.categoryId !== undefined ? newFilters.categoryId : categoryId;
+    const m = newFilters.manufacturerId !== undefined ? newFilters.manufacturerId : manufacturerId;
+    const d = newFilters.dosageFormId !== undefined ? newFilters.dosageFormId : dosageFormId;
+    const a = newFilters.isActive !== undefined ? newFilters.isActive : statusFilter;
+    const p = newFilters.page !== undefined ? newFilters.page : page;
+
+    if (s) params.set('search', s);
+    if (c) params.set('categoryId', c);
+    if (m) params.set('manufacturerId', m);
+    if (d) params.set('dosageFormId', d);
+    if (a && a !== 'true') params.set('isActive', a);
+    if (p > 1) params.set('page', String(p));
+
+    setSearchParams(params, { replace: true });
+  };
+
   // Deactivate mutation
   const deactivateMutation = useMutation({
     mutationFn: (id: string) => medicinesApi.deactivate(id),
@@ -102,7 +123,7 @@ export function MedicineListPage() {
       queryClient.invalidateQueries({ queryKey: ['medicines'] });
       setDeactivatingMedId(null);
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toastError('Failed to change status', err.message || 'Operation failed');
     },
   });
@@ -110,6 +131,7 @@ export function MedicineListPage() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
+    updateParams({ search: searchTerm, page: 1 });
   };
 
   const handleResetFilters = () => {
@@ -119,6 +141,7 @@ export function MedicineListPage() {
     setDosageFormId('');
     setStatusFilter('true');
     setPage(1);
+    setSearchParams(new URLSearchParams(), { replace: true });
   };
 
   return (
@@ -186,6 +209,7 @@ export function MedicineListPage() {
               onChange={(e) => {
                 setCategoryId(e.target.value);
                 setPage(1);
+                updateParams({ categoryId: e.target.value, page: 1 });
               }}
               className="text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white"
               id="select-category-filter"
@@ -203,6 +227,7 @@ export function MedicineListPage() {
               onChange={(e) => {
                 setManufacturerId(e.target.value);
                 setPage(1);
+                updateParams({ manufacturerId: e.target.value, page: 1 });
               }}
               className="text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white"
               id="select-manufacturer-filter"
@@ -216,10 +241,29 @@ export function MedicineListPage() {
             </select>
 
             <select
+              value={dosageFormId}
+              onChange={(e) => {
+                setDosageFormId(e.target.value);
+                setPage(1);
+                updateParams({ dosageFormId: e.target.value, page: 1 });
+              }}
+              className="text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white"
+              id="select-dosage-form-filter"
+            >
+              <option value="">All Dosage Forms</option>
+              {dosageForms.map((df) => (
+                <option key={df.id} value={df.id}>
+                  {df.name}
+                </option>
+              ))}
+            </select>
+
+            <select
               value={statusFilter}
               onChange={(e) => {
                 setStatusFilter(e.target.value);
                 setPage(1);
+                updateParams({ isActive: e.target.value, page: 1 });
               }}
               className="text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white"
               id="select-status-filter"
